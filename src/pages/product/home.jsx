@@ -9,6 +9,7 @@ import { useNavigate } from 'react-router-dom';
  */
 // let columns = null;
 let curPage = 1;
+
 export default function ProductHome() {
   const [products, setProdusts] = useState([]); // 商品数组
   const [total, setTotal] = useState(0); // 商品总数
@@ -32,7 +33,6 @@ export default function ProductHome() {
       const {total, list} = result.data;
       setTotal(total);
       setProdusts(list);
-      // console.log('setState');
     }
   }
 

@@ -4,6 +4,7 @@ import { Menu } from 'antd';
 import './left-nav.less';
 import logo from '../../assets/images/logo.png';
 import menuList from '../../config/menuConfig' ;
+import memoryUtils from '../../utils/memoryUtils'
 
 function getItem(label, key, icon, children, type) {
     return {
@@ -14,12 +15,39 @@ function getItem(label, key, icon, children, type) {
         type,
     };
 }
+
+const hasAuth = (item) => {
+
+    // console.log(memoryUtils);
+    // return true
+
+    const {id, isPublic} = item;
+    const {menus} = memoryUtils.user.role;
+    const {username} = memoryUtils.user;
+    // 1. 如果当前用户是admin
+    // 2. 如果当前item是公开的 
+    // 3. 当前用户有此item的权限: id有没有在menus中
+    if (username === 'admin' || isPublic || menus.indexOf(id)!==-1){
+        return true;
+    } else if (item.children) {
+        return !!item.children.find(child => menus.indexOf(child.id) !== -1)
+    }
+    return false;
+
+
+}
 const getMenuNodes = (items) =>{
-    return items.map(item => 
-        item.children
-        ? getItem(item.name, item.id, item.icon, getMenuNodes(item.children))
-        : getItem(item.name, item.id, item.icon)      
-    );
+    return items.reduce((pre, item) =>{
+
+        if (hasAuth(item)) {
+            const menuNode = item.children
+            ? getItem(item.name, item.id, item.icon, getMenuNodes(item.children))
+            : getItem(item.name, item.id, item.icon) 
+            pre.push(menuNode);
+        }
+        return pre;
+        
+    } ,[]);
 };
 const items = getMenuNodes(menuList);
   
@@ -35,10 +63,8 @@ export default function LeftNav() {
     const fatherPath = father.length ? father[0].id : null;
 
     const onClick = (e) => {
-        // console.log('click ', e);
         const key = e.key;
         pathname = e.key;
-        console.log(pathname);
         
         for (let i=0; i<menuList.length; i++){
             if (!menuList[i].children){

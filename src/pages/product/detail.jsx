@@ -71,9 +71,11 @@ export default function ProductDetail() {
           <div>
             <span className='product-detail-left'>商品图片：</span>
             {
+              imgs.length && imgs[0]? 
               imgs.map(img => (
                 <img key={img} src={BASE_IMG_URL+img} alt='img' className='product-img'/>
               ))
+              : '无'
             }
           </div>
         </List.Item>

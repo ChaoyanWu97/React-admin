@@ -7,6 +7,7 @@
  * @return {Promise}
  */
 import { message } from 'antd';
+// In order to gain the TypeScript typings (for intellisense / autocomplete) while using CommonJS imports with require() use the following approach:
 const axios = require('axios').default;
 
 export default function ajax (url, data={}, method='GET'){

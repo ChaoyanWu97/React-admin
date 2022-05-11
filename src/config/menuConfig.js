@@ -5,7 +5,7 @@ import {
   } from '@ant-design/icons';
 
 const menuList = [
-    {name:'首页', id:'/home', icon:<PieChartOutlined />},
+    {name:'首页', id:'/home', icon:<PieChartOutlined />, isPublic: true},
     {name:'商品', id:'/goods', icon: <AppstoreOutlined />, children:[
         {name:'品类管理', id:'/category', icon: <DesktopOutlined /> ,  },
         {name:'商品管理', id:'/product',  icon: <DesktopOutlined />, },

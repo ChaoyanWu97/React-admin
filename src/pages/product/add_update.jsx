@@ -157,7 +157,7 @@ export default function ProductAddUpdate() {
     // 根据结果提示
     if (result.status === 0) {
       message.success(`${isUpdate? '更新' : '添加'}商品成功!`);
-      // navigate(-1);
+      navigate(-1);
     } else {
       message.error(`${isUpdate? '更新' : '添加'}商品失败!`);
     }

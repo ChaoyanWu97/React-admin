@@ -17,18 +17,6 @@ const BASE = '';
 export const reqLogin = (username, password) => 
      ajax(BASE+'/login', {username, password}, 'POST')
 
-/**
- * 添加用户
- * @param {Object} user 
- * @param {string} user.username
- * @param {string} user.password
- * @param {string} [user.phone]
- * @param {string} [user.email]
- * @param {string} [user.role_id]
- * @returns {Promise}
- */
-export const reqAddUser = (user) => 
-    ajax(BASE+'/manage/user/add', user, 'POST');
 
 /**
 * 天气查询
@@ -229,13 +217,55 @@ export const reqDeleteImg = (name) =>
 /**
  * 添加/修改商品
  * @param {object} product 
- * @returns 
  */
 export const reqAddOrUpdateProduct = (product) => {
     const reqType = product._id ? 'update' : 'add';
     return ajax(BASE + `/manage/product/${reqType}`, product, 'POST')
 }
 
-    
+//================================角色管理相关==============================
+/**
+ * 获取角色列表
+ */
+export const reqRoles = () => 
+    ajax(BASE + '/manage/role/list')
 
+/**
+ * 添加角色
+ */
+ export const reqAddRole = (roleName) => 
+    ajax(BASE + '/manage/role/add', {roleName}, 'POST')   
 
+/**
+ * 设置角色权限
+ */
+ export const reqUpdateRole = (role) => 
+    ajax(BASE + '/manage/role/update', role, 'POST')
+
+//================================用户管理相关====================================
+/**
+ * 获取用户列表
+ */
+export const reqUsers = () => ajax(BASE + '/manage/user/list');
+
+/**
+ * 添加用户
+ * @param {Object} user 
+ * @param {string} user.username
+ * @param {string} user.password
+ * @param {string} [user.phone]
+ * @param {string} [user.email]
+ * @param {string} [user.role_id]
+ * @returns {Promise}
+ */
+export const reqAddUser = (user) => ajax(BASE+'/manage/user/add', user, 'POST');
+
+ /**
+  * 删除用户
+  */
+export const reqDeleteUser = (userId) => ajax(BASE+'/manage/user/delete', {userId}, 'POST');
+
+/**
+ * 修改用户
+ */
+export const reqUpdateUser = (user) => ajax(BASE+'/manage/user/update', user, 'POST');

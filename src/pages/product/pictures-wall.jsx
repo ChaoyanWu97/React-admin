@@ -42,14 +42,12 @@ export default function PicturesWall(props)  {
         message.success('上传图片成功')
         file.name = result.data.name;
         file.url = result.data.url;
-        console.log('file.url', file.url);
       }else{
         message.error('上传图片失败')
       }
     } else if ((file.status === 'removed')) {
       // 删除后台的图片
       const result = await reqDeleteImg(file.name);
-      console.log(result);
       if (result.status === 0) {
         message.success('删除图片成功');
       } else {
@@ -68,7 +66,6 @@ export default function PicturesWall(props)  {
   }
 
   const imgs = useMemo(() => fileList.map(f => f.name), [fileList])
-  // useMemo(() => console.log('fileList', fileList), [fileList])
 
   setImgs(imgs || []); // 将上传的图片传递给父组件
 

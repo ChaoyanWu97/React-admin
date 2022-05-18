@@ -1,41 +1,20 @@
-import React, { useState, useEffect, useMemo } from 'react';
-import { useLocation, useNavigate } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
 import { Button, Modal } from 'antd';
 import { ExclamationCircleOutlined } from '@ant-design/icons';
-// import weather from './weather.jpg';
 import './header.less';
 import { formateData } from '../../utils/dateUtils';
 import { reqWeather } from '../../api/';
-import memoryUtils from '../../utils/memoryUtils'
-import menuList from '../../config/menuConfig';
-import storageUtils from '../../utils/storageUtils';
+import { connect } from 'react-redux';
+import { logout } from '../../redux/actions'
 
 
 
-export default function Header() {
+function Header(props) {
   const [currentTime, setCurrentTime] = useState(formateData(Date.now()));
   const [weather, setWeather] = useState('');
-  const username = memoryUtils.user.username;
 
-  const navigate = useNavigate();
-  
-  const location = useLocation(); 
-  const {pathname} = location;
-
-  
-
-  const getTitle = (pathname, menuList) => {
-    for (const item of menuList){
-      if (pathname.indexOf(item.id) === 0) return item.name;
-      if (item.children) {
-        const name = getTitle(pathname, item.children)
-        if (name) return name;
-      }
-    }
-  }
-  // eslint-disable-next-line
-  const title = useMemo(()=>getTitle(pathname, menuList), [pathname]);
-
+  const {username} = props.user;
+  const title = props.headTitle;
 
   const logout = () => {
     const { confirm } = Modal;
@@ -44,13 +23,7 @@ export default function Header() {
       icon: <ExclamationCircleOutlined />,
       content: '确定退出吗？',
       onOk() {
-        // 删除保存的user数据
-        storageUtils.removeUser();
-        memoryUtils.user = {};
-        // 跳转到login页面
-        navigate('/login', {
-          replace: true,
-        })
+        props.logout();
       },
     });
   }
@@ -93,3 +66,12 @@ export default function Header() {
     </div>
   )
 }
+
+
+export default connect(
+  (state) => ({
+    headTitle: state.headTitle,
+    user: state.user
+  }),
+  {logout}
+)(Header);

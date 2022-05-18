@@ -1,35 +1,21 @@
-import React, { useState } from 'react';
-import { Form, Input, Button, message } from 'antd';
+import React from 'react';
+import { Navigate } from 'react-router-dom'
+import { connect } from 'react-redux';
+import { Form, Input, Button } from 'antd';
 import { UserOutlined, LockOutlined } from '@ant-design/icons';
-import { useNavigate } from 'react-router-dom'
 import "./login.less";
 import logo from '../../assets/images/logo.png';
-import { reqLogin } from '../../api';
-import memoryUtils from '../../utils/memoryUtils';
-import storageUtils from '../../utils/storageUtils';
+import {login} from '../../redux/actions'
 import { MAXLEN_PASSWORD, MAXLEN_USERNAME, MINLEN_PASSWORD, MINLEN_USERNAME } from '../../config/constants';
 
-export default function Login() {
-    const [skip, setSkip] = useState(true);
 
-    const navigate = useNavigate();
+function Login(props) {
+
 
     // 提交表单且数据验证成功后回调事件
     const  onFinish = async (values) => {
         const {username, password} = values; 
-        const response = await reqLogin(username, password); //{status,data} {status,msg}
-        if (response.status === 0){
-            message.success('登录成功');
-            const userData = response.data;
-            memoryUtils.user = userData; // 保存在内存中
-            storageUtils.saveUser(userData); // 保存在local中
-            // 跳转到管理界面
-            navigate('/', {
-                replace: true,
-            });
-        } else {
-            message.error(response.msg);
-        }
+        props.login(username, password);
     };
 
     // 提交表单且数据验证失败后回调事件
@@ -37,17 +23,11 @@ export default function Login() {
         console.log('表单数据校验失败' + errorInfo);
     };
 
-    // 如果用户已经登录，进入登入界面后会重定向到后台管理界面
-    React.useEffect(()=>{
-        const user = memoryUtils.user;
-        if (skip) {
-            setSkip(false);
-            if (user && user._id) {
-                navigate('/', {replace: true,});
-            }
-        }
-    //eslint-disable-next-line react-hooks/exhaustive-deps
-    },[skip])
+    // 如果用户已经登录，跳转到后台管理界面
+    const {user} = props;
+    if (user && user._id) {
+        return < Navigate to = "/" />
+    }
 
     return (
         <div className='login'>
@@ -56,6 +36,7 @@ export default function Login() {
             <h1>后台管理系统</h1>
         </header>
         <section className='login-content'>
+            <div className={user.errMsg ? 'error-msg show' : 'error-msg'} >{user.errMsg}</div>
             <h2>用户登录</h2>
             <Form name="normal_login" className="login-form" onFinish={onFinish} onFinishFailed={onFinishFailed}>
                 <Form.Item name="username" validateFirst={true}
@@ -101,3 +82,8 @@ export default function Login() {
         </div>
     )
 }
+
+export default connect(
+    state => ({user: state.user}),
+    {login}
+)(Login)

@@ -4,57 +4,63 @@ import { Menu } from 'antd';
 import './left-nav.less';
 import logo from '../../assets/images/logo.png';
 import menuList from '../../config/menuConfig' ;
-import memoryUtils from '../../utils/memoryUtils'
-
-function getItem(label, key, icon, children, type) {
-    return {
-        key,
-        icon,
-        children,
-        label,
-        type,
-    };
-}
-
-const hasAuth = (item) => {
-
-    // console.log(memoryUtils);
-    // return true
-
-    const {id, isPublic} = item;
-    const {menus} = memoryUtils.user.role;
-    const {username} = memoryUtils.user;
-    // 1. 如果当前用户是admin
-    // 2. 如果当前item是公开的 
-    // 3. 当前用户有此item的权限: id有没有在menus中
-    if (username === 'admin' || isPublic || menus.indexOf(id)!==-1){
-        return true;
-    } else if (item.children) {
-        return !!item.children.find(child => menus.indexOf(child.id) !== -1)
-    }
-    return false;
+import { connect } from 'react-redux';
+import {setHeadTitle} from '../../redux/actions';
 
 
-}
-const getMenuNodes = (items) =>{
-    return items.reduce((pre, item) =>{
-
-        if (hasAuth(item)) {
-            const menuNode = item.children
-            ? getItem(item.name, item.id, item.icon, getMenuNodes(item.children))
-            : getItem(item.name, item.id, item.icon) 
-            pre.push(menuNode);
-        }
-        return pre;
-        
-    } ,[]);
-};
-const items = getMenuNodes(menuList);
   
-export default function LeftNav() {
+function LeftNav(props) {
     const navigate = useNavigate();
     const location = useLocation(); 
     let pathname = location.pathname;
+
+    function getItem(label, key, icon, children, type) {
+        return {
+            key,
+            icon,
+            children,
+            label,
+            type,
+        };
+    }
+    
+    const hasAuth = (item) => {
+    
+        const {id, isPublic} = item;
+        const {menus} = props.user.role;
+        const {username} = props.user;
+
+        // 1. 如果当前用户是admin
+        // 2. 如果当前item是公开的 
+        // 3. 当前用户有此item的权限: id有没有在menus中
+        if (username === 'admin' || isPublic || menus.indexOf(id)!==-1){
+            return true;
+        } else if (item.children) {
+            return !!item.children.find(child => menus.indexOf(child.id) !== -1)
+        }
+        return false;    
+    }
+    const getMenuNodes = (items) =>{
+        return items.reduce((pre, item) =>{
+            
+            if (hasAuth(item)) {
+
+                if (!item.children) {
+                    if (pathname.indexOf(item.id) === 0){
+                        props.setHeadTitle(item.name)
+                    }
+                }
+
+                const menuNode = item.children
+                ? getItem(item.name, item.id, item.icon, getMenuNodes(item.children))
+                : getItem(item.name, item.id, item.icon) 
+                pre.push(menuNode);
+            }
+            return pre;
+            
+        } ,[]);
+    };
+    const items = getMenuNodes(menuList);
 
     const father = menuList.filter(item => 
         item.children 
@@ -70,12 +76,14 @@ export default function LeftNav() {
             if (!menuList[i].children){
                 if (key === menuList[i].id){
                     navigate(menuList[i].id);
+                    props.setHeadTitle(menuList[i].name)
                     break;
                 }
             }else{
                 for (let j=0; j<menuList[i].children.length; j++){
                     if (key === menuList[i].children[j].id){
                         navigate(menuList[i].children[j].id);
+                        props.setHeadTitle(menuList[i].children[j].name)
                         break;
                     }
                 }
@@ -102,4 +110,11 @@ export default function LeftNav() {
         </div>
     )
 }
+
+export default connect(
+    state => ({
+        user: state.user
+    }),
+    {setHeadTitle}
+)(LeftNav)
  
